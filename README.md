@@ -20,22 +20,12 @@
 
 - Github
 ```txt
-https://raw.githubusercontent.com/ganlinte/GKD-subscription/main/dist/Kalpa_gkd.json5
+https://raw.githubusercontent.com/Shishaojie1003/GKD_Subscription/main/dist/Kalpa_gkd.json5
 ```
 
 - gitmirror
 ```txt
-https://raw.gitmirror.com/ganlinte/GKD-subscription/main/dist/Kalpa_gkd.json5
-```
-
-- npmmirrow
-```txt
-https://registry.npmmirror.com/@ganlinte/gkd-subscription/latest/files/dist/Kalpa_gkd.json5
-```
-
-- jsDeliver
-```txt
-https://cdn.jsdelivr.net/npm/@ganlinte/gkd-subscription@latest/dist/Kalpa_gkd.json5
+https://raw.gitmirror.com/Shishaojie1003/GKD_Subscription/main/dist/Kalpa_gkd.json5
 ```
 
 ## GKD 订阅仓库
