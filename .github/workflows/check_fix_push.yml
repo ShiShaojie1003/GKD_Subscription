@@ -1,0 +1,61 @@
+name: check_fix_push
+
+on:
+  push:
+    branches:
+      - '**'
+
+permissions: write-all
+
+jobs:
+  check:
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install
+      - run: bun run check
+      - run: bun run format
+      - run: bun run lint
+
+      - name: Git commit
+        id: commit
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add .
+            git commit -m "chore(actions): check_format_lint [skip ci]"
+          else
+            echo "No changes to commit"
+            exit 0
+          fi
+
+      - name: Pull latest changes and rebase
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git fetch origin
+          set +e
+          git rebase origin/${{ github.ref_name }}
+          REBASE_EXIT=$?
+          set -e
+
+          if [ $REBASE_EXIT -ne 0 ]; then
+            echo "⚠️ Rebase failed, skipping push"
+            exit 0
+          fi
+
+      - name: Git push
+        uses: ad-m/github-push-action@master
+        if: ${{ steps.commit.outcome == 'success' }}
+        with:
+          branch: ${{ github.ref_name }}
+          force: false

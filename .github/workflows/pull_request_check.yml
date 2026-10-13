@@ -1,0 +1,100 @@
+name: pull_request_check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed_files
+        uses: tj-actions/changed-files@v46
+
+      - name: Check changed files
+        env:
+          CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
+          CHANGED_FILES_COUNT: ${{ steps.changed_files.outputs.all_changed_files_count }}
+          IS_DEPENDABOT: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
+        run: |
+          if [[ "$IS_DEPENDABOT" == "true" ]]; then
+            if [[ "$CHANGED_FILES_COUNT" -lt 1 || "$CHANGED_FILES_COUNT" -gt 2 ]]; then
+              echo "Dependabot pull requests must change one or two files"
+              exit 1
+            fi
+
+            for file in $CHANGED_FILES; do
+              if [[ "$file" != "package.json" && "$file" != "bun.lock" ]]; then
+                echo "Dependabot changed an unexpected file: $file"
+                exit 1
+              fi
+            done
+          elif [[ "$CHANGED_FILES_COUNT" -ne 1 ]]; then
+            echo "your changed files count must be 1"
+            exit 1
+          fi
+
+          for file in $CHANGED_FILES; do
+            echo "$file was changed"
+          done
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install
+      - run: bun run check
+      - run: bun run format
+      - run: bun run lint
+
+      # 尝试合并 main，自动处理 package.json / bun.lock
+      - name: Merge main into PR branch
+        run: |
+          git fetch origin main
+          set +e
+          git merge origin/main -X ours
+          MERGE_EXIT=$?
+          set -e
+
+          if [ $MERGE_EXIT -ne 0 ]; then
+            echo "Merge had conflicts, checking files..."
+
+            # 如果 bun.lock 有冲突 → 删掉重新生成
+            if git ls-files -u | grep "bun.lock"; then
+              echo "bun.lock conflict detected, regenerating..."
+              git rm bun.lock
+              bun install
+              git add bun.lock
+            fi
+
+            # 如果 package.json 有冲突 → 保留 PR 分支版本
+            if git ls-files -u | grep "package.json"; then
+              echo "package.json conflict detected, keeping PR version"
+              git checkout --ours package.json
+              git add package.json
+              bun install
+              git add bun.lock
+            fi
+
+            # 如果还有别的文件冲突，直接 fail
+            OTHER_CONFLICTS=$(git ls-files -u | grep -vE "package.json|bun.lock" || true)
+            if [ -n "$OTHER_CONFLICTS" ]; then
+              echo "❌ Other conflicts detected, please resolve manually:"
+              echo "$OTHER_CONFLICTS"
+              exit 1
+            fi
+
+            git commit -m "chore: auto-resolve deps conflicts [skip ci]" || true
+            git push origin HEAD:${{ github.head_ref }}
+          else
+            echo "No conflicts during merge"
+          fi

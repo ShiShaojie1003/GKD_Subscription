@@ -1,0 +1,62 @@
+name: build_release
+
+on: workflow_dispatch
+
+jobs:
+  build_release:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install
+
+      - run: bun run build
+
+      - id: version
+        run: |
+          version=$(bun -e "import('@gkd-kit/tools').then((m) => m.stdoutGkdVersion());")
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          bun -e "import('@gkd-kit/tools').then((m) => m.updatePkgVersion());"
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org/'
+          package-manager-cache: false
+
+      - name: Publish to NPM
+        run: |
+          npm publish --access public --provenance
+          bun -e "import('@gkd-kit/tools').then((m) => m.syncNpmmirror());"
+
+      - name: Git commit & Push
+        id: commit
+        run: |
+          git config --local user.email github-actions[bot]@users.noreply.github.com
+          git config --local user.name github-actions[bot]
+          git add .
+          git commit -m "chore: v${{ steps.version.outputs.version }}"
+          # 推送代码和 Tag
+          git push origin main
+          git tag v${{ steps.version.outputs.version }}
+          git push origin v${{ steps.version.outputs.version }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          body_path: ./dist/CHANGELOG.md
+          files: |
+            ./dist/ganlin_gkd.json5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
