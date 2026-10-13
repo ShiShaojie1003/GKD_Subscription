@@ -16,26 +16,26 @@
 
 |                                             Github                                             |                                       gitmirror                                        |                                              npmmirror                                               |                                           jsDelivr                                           |
 | :--------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
-| [链接](https://raw.githubusercontent.com/ganlinte/GKD-subscription/main/dist/ganlin_gkd.json5) | [链接](https://raw.gitmirror.com/ganlinte/GKD-subscription/main/dist/ganlin_gkd.json5) | [链接](https://registry.npmmirror.com/@ganlinte/gkd-subscription/latest/files/dist/ganlin_gkd.json5) | [链接](https://cdn.jsdelivr.net/npm/@ganlinte/gkd-subscription@latest/dist/ganlin_gkd.json5) |
+| [链接](https://raw.githubusercontent.com/ganlinte/GKD-subscription/main/dist/Kalpa_gkd.json5) | [链接](https://raw.gitmirror.com/ganlinte/GKD-subscription/main/dist/Kalpa_gkd.json5) | [链接](https://registry.npmmirror.com/@ganlinte/gkd-subscription/latest/files/dist/Kalpa_gkd.json5) | [链接](https://cdn.jsdelivr.net/npm/@ganlinte/gkd-subscription@latest/dist/Kalpa_gkd.json5) |
 
 - Github
 ```txt
-https://raw.githubusercontent.com/ganlinte/GKD-subscription/main/dist/ganlin_gkd.json5
+https://raw.githubusercontent.com/ganlinte/GKD-subscription/main/dist/Kalpa_gkd.json5
 ```
 
 - gitmirror
 ```txt
-https://raw.gitmirror.com/ganlinte/GKD-subscription/main/dist/ganlin_gkd.json5
+https://raw.gitmirror.com/ganlinte/GKD-subscription/main/dist/Kalpa_gkd.json5
 ```
 
 - npmmirrow
 ```txt
-https://registry.npmmirror.com/@ganlinte/gkd-subscription/latest/files/dist/ganlin_gkd.json5
+https://registry.npmmirror.com/@ganlinte/gkd-subscription/latest/files/dist/Kalpa_gkd.json5
 ```
 
 - jsDeliver
 ```txt
-https://cdn.jsdelivr.net/npm/@ganlinte/gkd-subscription@latest/dist/ganlin_gkd.json5
+https://cdn.jsdelivr.net/npm/@ganlinte/gkd-subscription@latest/dist/Kalpa_gkd.json5
 ```
 
 ## GKD 订阅仓库
